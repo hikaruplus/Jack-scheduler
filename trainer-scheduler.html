@@ -241,6 +241,18 @@
     box-shadow: var(--shadow-sm);
   }
 
+  .slot.free.room2 {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #93c5fd;
+  }
+
+  .slot.free.room2:hover {
+    background: #bfdbfe;
+    transform: scale(1.02);
+    box-shadow: var(--shadow-sm);
+  }
+
   .slot.booked {
     background: var(--red-light);
     color: #991b1b;
@@ -708,7 +720,10 @@ const CONFIG = {
   <div class="main" id="view-student">
     <div class="legend">
       <div class="legend-item">
-        <div class="legend-dot" style="background:#d1fae5;border:1px solid #a7f3d0"></div>可預約
+        <div class="legend-dot" style="background:#d1fae5;border:1px solid #a7f3d0"></div>南昌教室（可預約）
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#dbeafe;border:1px solid #93c5fd"></div>民權教室（可預約）
       </div>
       <div class="legend-item">
         <div class="legend-dot" style="background:#fecaca;border:1px solid #fca5a5"></div>已預約
@@ -745,7 +760,8 @@ const CONFIG = {
     <div id="trainer-content" style="display:none">
       <div class="main">
 
-        <div class="section-label" style="margin-bottom:10px">設定可用時段 — 點擊開關</div>
+        <div class="section-label" style="margin-bottom:4px">設定可用時段</div>
+        <p style="font-size:12px;color:var(--gray-500);margin-bottom:10px">點一下 → 指定南昌教室，再點 → 切換民權教室，再點 → 關閉</p>
         <div class="mgmt-grid" id="trainer-grid"></div>
 
         <div class="bookings-card">
@@ -782,10 +798,6 @@ const CONFIG = {
       <span id="modal-slot-label"></span>
     </div>
     <div class="form-group">
-      <label class="form-label">選擇教室 *</label>
-      <select class="form-input" id="book-room"></select>
-    </div>
-    <div class="form-group">
       <label class="form-label">姓名 *</label>
       <input class="form-input" type="text" id="book-name" placeholder="請輸入你的名字">
     </div>
@@ -819,22 +831,30 @@ let selectedSlot = null;
 let trainerUnlocked = false;
 let currentPassword = CONFIG.trainerPassword;
 
-// Default availability: Mon–Fri 10:00–22:00, Sat 10:00–16:00
+// avail[day] = array of {ti, room} — each open slot with its assigned room
+const defaultRoom = CONFIG.rooms[0];
 const defaultAvail = {
   0: [],
-  1: [0,1,2,3,4,5,6,7,8,9,10,11,12],
-  2: [0,1,2,3,4,5,6,7,8,9,10,11,12],
-  3: [0,1,2,3,4,5,6,7,8,9,10,11,12],
-  4: [0,1,2,3,4,5,6,7,8,9,10,11,12],
-  5: [0,1,2,3,4,5,6,7,8,9,10,11,12],
-  6: [0,1,2,3,4,5,6],
+  1: [0,1,2,3,4,5,6,7,8,9,10,11,12].map(ti=>({ti,room:defaultRoom})),
+  2: [0,1,2,3,4,5,6,7,8,9,10,11,12].map(ti=>({ti,room:defaultRoom})),
+  3: [0,1,2,3,4,5,6,7,8,9,10,11,12].map(ti=>({ti,room:defaultRoom})),
+  4: [0,1,2,3,4,5,6,7,8,9,10,11,12].map(ti=>({ti,room:defaultRoom})),
+  5: [0,1,2,3,4,5,6,7,8,9,10,11,12].map(ti=>({ti,room:defaultRoom})),
+  6: [0,1,2,3,4,5,6].map(ti=>({ti,room:defaultRoom})),
 };
 
 // Load from localStorage or use defaults
 let avail = loadData('avail') || JSON.parse(JSON.stringify(defaultAvail));
+// Migrate old plain-number format if needed
+for (let d = 0; d < 7; d++) {
+  if (avail[d] && avail[d].length && typeof avail[d][0] === 'number') {
+    avail[d] = avail[d].map(ti => ({ti, room: defaultRoom}));
+  }
+}
+
 let bookings = loadData('bookings') || [
-  {id:'demo1', day:1, time:'10:00', name:'小明', phone:'0912-000-111', note:'重訓', gcalId:null},
-  {id:'demo2', day:3, time:'14:00', name:'Chloe', phone:'0922-333-444', note:'有氧', gcalId:null},
+  {id:'demo1', day:1, time:'10:00', name:'小明', phone:'0912-000-111', note:'重訓', room:'南昌教室'},
+  {id:'demo2', day:3, time:'14:00', name:'Chloe', phone:'0922-333-444', note:'有氧', room:'民權教室'},
 ];
 
 function loadData(key) {
@@ -847,14 +867,6 @@ function saveData(key, val) {
 
 // ── Init ──────────────────────────────────────────────────────────
 document.getElementById('trainer-name-display').textContent = CONFIG.trainerName;
-
-// Populate room options in modal
-const roomSelect = document.getElementById('book-room');
-CONFIG.rooms.forEach(r => {
-  const opt = document.createElement('option');
-  opt.value = r; opt.textContent = r;
-  roomSelect.appendChild(opt);
-});
 
 renderStudent();
 
@@ -955,21 +967,20 @@ function renderStudent() {
       <div class="cal-slots" id="slots-${di}"></div>`;
 
     const slotsEl = col.querySelector(`#slots-${di}`);
-    const dayAvail = avail[di] || [];
 
     TIMES.forEach((time, ti) => {
       const slot = document.createElement('button');
+      const slotEntry = (avail[di]||[]).find(s => s.ti === ti);
       const booked = bookings.some(b => b.day===di && b.time===time);
-      const free = dayAvail.includes(ti);
       const past = isPast(date, time) && weekOffset <= 0;
 
-      if (!free) {
+      if (!slotEntry) {
         slot.className = 'slot unavail';
         slot.textContent = '·';
         slot.disabled = true;
       } else if (booked) {
         slot.className = 'slot booked';
-        slot.textContent = time;
+        slot.innerHTML = `<div>${time}</div><div style="font-size:9px;opacity:0.75">${slotEntry.room}</div>`;
         slot.disabled = true;
       } else if (past) {
         slot.className = 'slot unavail';
@@ -977,9 +988,10 @@ function renderStudent() {
         slot.style.textDecoration = 'line-through';
         slot.disabled = true;
       } else {
-        slot.className = 'slot free';
-        slot.textContent = time;
-        slot.onclick = () => openModal(di, date, time);
+        const isSecondRoom = slotEntry.room === CONFIG.rooms[1];
+        slot.className = 'slot free' + (isSecondRoom ? ' room2' : '');
+        slot.innerHTML = `<div>${time}</div><div style="font-size:9px;opacity:0.8">${slotEntry.room}</div>`;
+        slot.onclick = () => openModal(di, date, time, slotEntry.room);
       }
       slotsEl.appendChild(slot);
     });
@@ -997,25 +1009,60 @@ function renderTrainer() {
 function renderMgmtGrid() {
   const grid = document.getElementById('trainer-grid');
   grid.innerHTML = '';
+  // Room cycle: null (off) → room[0] → room[1] → ... → null
+  const rooms = CONFIG.rooms;
+
   for (let di = 0; di < 7; di++) {
     const col = document.createElement('div');
     col.className = 'mgmt-day';
     col.innerHTML = `<div class="mgmt-day-head">${DAYS[di]}</div><div class="mgmt-slots" id="mgmt-${di}"></div>`;
     const slotsEl = col.querySelector(`#mgmt-${di}`);
+
     TIMES.forEach((time, ti) => {
-      const on = (avail[di]||[]).includes(ti);
+      const entry = (avail[di]||[]).find(s => s.ti === ti);
       const s = document.createElement('button');
-      s.className = 'toggle-slot' + (on ? ' on' : '');
-      s.textContent = time;
+
+      function applyState() {
+        const cur = (avail[di]||[]).find(s => s.ti === ti);
+        if (!cur) {
+          s.className = 'toggle-slot';
+          s.innerHTML = `<div>${time}</div>`;
+        } else {
+          const roomIdx = rooms.indexOf(cur.room);
+          const colors = ['#dbeafe|#1e40af', '#d1fae5|#065f46'];
+          const [bg, fg] = (colors[roomIdx] || colors[0]).split('|');
+          s.className = 'toggle-slot on';
+          s.style.background = bg;
+          s.style.color = fg;
+          s.style.borderColor = fg;
+          s.innerHTML = `<div>${time}</div><div style="font-size:9px;font-weight:500">${cur.room}</div>`;
+        }
+      }
+
       s.onclick = () => {
         const arr = avail[di] || [];
-        const idx = arr.indexOf(ti);
-        if (idx > -1) { arr.splice(idx,1); s.classList.remove('on'); }
-        else { arr.push(ti); arr.sort((a,b)=>a-b); s.classList.add('on'); }
+        const idx = arr.findIndex(x => x.ti === ti);
+        if (idx === -1) {
+          // off → first room
+          arr.push({ti, room: rooms[0]});
+          arr.sort((a,b) => a.ti - b.ti);
+        } else {
+          const curRoomIdx = rooms.indexOf(arr[idx].room);
+          if (curRoomIdx < rooms.length - 1) {
+            // cycle to next room
+            arr[idx].room = rooms[curRoomIdx + 1];
+          } else {
+            // last room → off
+            arr.splice(idx, 1);
+          }
+        }
         avail[di] = arr;
         saveData('avail', avail);
+        applyState();
         renderStudent();
       };
+
+      applyState();
       slotsEl.appendChild(s);
     });
     grid.appendChild(col);
@@ -1064,15 +1111,14 @@ function cancelBooking(id) {
 }
 
 // ── Modal ─────────────────────────────────────────────────────────
-function openModal(di, date, time) {
-  selectedSlot = {di, date, time};
-  const pill = `<span class="pill">${DAYS[di]} ${date.getMonth()+1}/${date.getDate()}  ${time}</span>`;
+function openModal(di, date, time, room) {
+  selectedSlot = {di, date, time, room};
+  const pill = `<span class="pill">${DAYS[di]} ${date.getMonth()+1}/${date.getDate()}  ${time}</span><span class="pill" style="background:#dbeafe;color:#1e40af;margin-left:6px">${room}</span>`;
   document.getElementById('modal-slot-label').innerHTML = pill;
 
   document.getElementById('book-name').value = '';
   document.getElementById('book-phone').value = '';
   document.getElementById('book-note').value = '';
-  document.getElementById('book-room').value = CONFIG.rooms[0];
   document.getElementById('modal-overlay').classList.add('open');
   setTimeout(() => document.getElementById('book-name').focus(), 200);
 }
@@ -1086,7 +1132,7 @@ async function confirmBooking() {
   const name = document.getElementById('book-name').value.trim();
   const phone = document.getElementById('book-phone').value.trim();
   const note = document.getElementById('book-note').value.trim();
-  const room = document.getElementById('book-room').value;
+  const room = selectedSlot.room;
 
   if (!name) {
     document.getElementById('book-name').focus();
