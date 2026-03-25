@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>志杰基佬俱樂部</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --accent: #3b82f6;
+    --accent-light: #eff6ff;
+    --accent-mid: #93c5fd;
+    --accent-dark: #1d4ed8;
+    --green: #10b981;
+    --green-light: #ecfdf5;
+    --red: #ef4444;
+    --red-light: #fef2f2;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-500: #6b7280;
+    --gray-700: #374151;
+    --gray-900: #111827;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  }
+
+  body {
+    font-family: 'DM Sans', 'Noto Sans TC', sans-serif;
+    background: var(--gray-50);
+    color: var(--gray-900);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── Layout ── */
+  .app-header {
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .app-logo {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--gray-900);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .app-logo .dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  .header-tabs {
+    display: flex;
+    gap: 2px;
+    background: var(--gray-100);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+  }
+
+  .header-tab {
+    padding: 5px 16px;
+    font-size: 13px;
+    border: none;
+    background: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: var(--gray-500);
+    font-weight: 400;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+
+  .header-tab.active {
+    background: #fff;
+    color: var(--gray-900);
+    font-weight: 500;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* ── Week nav ── */
+  .week-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.25rem;
+  }
+
+  .week-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--gray-900);
+    min-width: 120px;
+  }
+
+  .week-btn {
+    width: 30px; height: 30px;
+    border: 1px solid var(--gray-200);
+    background: #fff;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 15px;
+    color: var(--gray-500);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .week-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .today-btn {
+    padding: 4px 12px;
+    border: 1px solid var(--gray-200);
+    background: #fff;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--gray-500);
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  .today-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Calendar grid ── */
+  .legend {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px; color: var(--gray-500);
+  }
+
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 3px;
+  }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+
+  .cal-day {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    min-height: 300px;
+  }
+
+  .cal-day-head {
+    padding: 8px 6px 6px;
+    text-align: center;
+    border-bottom: 1px solid var(--gray-100);
+    background: var(--gray-50);
+  }
+
+  .cal-weekday {
+    font-size: 11px;
+    color: var(--gray-500);
+    margin-bottom: 2px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+
+  .cal-date {
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--gray-700);
+    line-height: 1;
+  }
+
+  .cal-date.is-today {
+    background: var(--accent);
+    color: #fff;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .cal-day.is-today-col { border-color: var(--accent-mid); }
+
+  .cal-slots { padding: 6px; display: flex; flex-direction: column; gap: 3px; }
+
+  .slot {
+    padding: 5px 4px;
+    border-radius: 5px;
+    font-size: 11px;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.12s;
+    font-family: inherit;
+    font-weight: 400;
+    line-height: 1.2;
+  }
+
+  .slot.free {
+    background: var(--green-light);
+    color: #065f46;
+    border-color: #a7f3d0;
+  }
+
+  .slot.free:hover {
+    background: #d1fae5;
+    transform: scale(1.02);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .slot.booked {
+    background: var(--red-light);
+    color: #991b1b;
+    border-color: #fecaca;
+    cursor: default;
+  }
+
+  .slot.unavail {
+    color: var(--gray-300);
+    cursor: default;
+    font-size: 10px;
+  }
+
+  /* ── Trainer view ── */
+  .section-label {
+    font-size: 12px;
+    color: var(--gray-500);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+
+  .mgmt-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-bottom: 2rem;
+  }
+
+  .mgmt-day {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .mgmt-day-head {
+    background: var(--gray-50);
+    padding: 6px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--gray-500);
+    border-bottom: 1px solid var(--gray-100);
+    letter-spacing: 0.03em;
+  }
+
+  .mgmt-slots { padding: 5px; display: flex; flex-direction: column; gap: 3px; }
+
+  .toggle-slot {
+    padding: 4px 3px;
+    border-radius: 4px;
+    font-size: 10px;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid var(--gray-200);
+    background: #fff;
+    color: var(--gray-300);
+    transition: all 0.12s;
+    font-family: inherit;
+    user-select: none;
+  }
+
+  .toggle-slot.on {
+    background: var(--green-light);
+    color: #065f46;
+    border-color: #a7f3d0;
+  }
+
+  .toggle-slot:hover { border-color: var(--gray-400); }
+  .toggle-slot.on:hover { background: #d1fae5; }
+
+  /* ── Bookings list ── */
+  .bookings-card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .bookings-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .bookings-title { font-size: 14px; font-weight: 500; }
+
+  .booking-count {
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 99px;
+  }
+
+  .booking-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--gray-100);
+    gap: 12px;
+    transition: background 0.1s;
+  }
+
+  .booking-row:last-child { border-bottom: none; }
+  .booking-row:hover { background: var(--gray-50); }
+
+  .booking-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .booking-info { flex: 1; min-width: 0; }
+
+  .booking-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-900);
+    margin-bottom: 1px;
+  }
+
+  .booking-meta { font-size: 12px; color: var(--gray-500); }
+
+  .room-badge {
+    font-size: 10px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    padding: 1px 7px;
+    border-radius: 99px;
+    margin-left: 6px;
+    font-weight: 500;
+  }
+
+  .cancel-btn {
+    padding: 4px 10px;
+    border: 1px solid var(--gray-200);
+    background: none;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    color: var(--gray-500);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.12s;
+  }
+
+  .cancel-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
+
+  .empty-state {
+    text-align: center;
+    padding: 2.5rem;
+    color: var(--gray-500);
+    font-size: 13px;
+  }
+
+  /* ── Modal ── */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(17,24,39,0.35);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200;
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    transform: scale(0.97) translateY(8px);
+    transition: transform 0.2s;
+  }
+
+  .overlay.open .modal { transform: scale(1) translateY(0); }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .modal-subtitle {
+    font-size: 13px;
+    color: var(--gray-500);
+    margin-bottom: 1.25rem;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .modal-subtitle .pill {
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .form-group { margin-bottom: 14px; }
+
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-700);
+    margin-bottom: 5px;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--gray-900);
+    outline: none;
+    transition: border-color 0.15s;
+    background: #fff;
+  }
+
+  .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+
+  .form-input::placeholder { color: var(--gray-300); }
+
+  .gcal-notice {
+    background: #e8f0fe;
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #1a73e8;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .gcal-notice.disabled { background: var(--gray-100); color: var(--gray-500); }
+
+  .btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1.5rem; }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--gray-200);
+    background: #fff;
+    color: var(--gray-700);
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  .btn:hover { border-color: var(--gray-400); }
+
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .btn.primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .btn.primary:disabled { opacity: 0.6; cursor: default; }
+
+  /* ── Lock screen ── */
+  .lock-screen {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--gray-50);
+  }
+
+  .lock-card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    width: 320px;
+    box-shadow: var(--shadow-md);
+    text-align: center;
+  }
+
+  .lock-icon {
+    width: 48px; height: 48px;
+    background: var(--accent-light);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    margin: 0 auto 1.25rem;
+  }
+
+  .lock-title { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+  .lock-sub { font-size: 13px; color: var(--gray-500); margin-bottom: 1.5rem; }
+
+  .lock-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-family: inherit;
+    text-align: center;
+    letter-spacing: 0.2em;
+    outline: none;
+    margin-bottom: 12px;
+    transition: border-color 0.15s;
+  }
+
+  .lock-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+  .lock-input.error { border-color: var(--red); animation: shake 0.3s; }
+
+  .lock-btn {
+    width: 100%;
+    padding: 10px;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+
+  .lock-btn:hover { background: var(--accent-dark); }
+
+  .lock-error {
+    font-size: 12px;
+    color: var(--red);
+    margin-top: 8px;
+    height: 16px;
+  }
+
+  /* ── Settings panel ── */
+  .settings-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+  }
+
+  .settings-label { flex: 1; font-size: 13px; color: var(--gray-700); }
+
+  .settings-input {
+    padding: 5px 10px;
+    border: 1px solid var(--gray-200);
+    border-radius: 5px;
+    font-size: 12px;
+    font-family: inherit;
+    width: 200px;
+    outline: none;
+  }
+
+  .settings-input:focus { border-color: var(--accent); }
+
+  .save-btn {
+    padding: 5px 12px;
+    background: var(--accent);
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .save-btn:hover { background: var(--accent-dark); }
+
+  /* ── Toast ── */
+  .toast-container {
+    position: fixed;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+
+  .toast {
+    background: var(--gray-900);
+    color: #fff;
+    padding: 9px 18px;
+    border-radius: 99px;
+    font-size: 13px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.25s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success { background: var(--green); }
+  .toast.error { background: var(--red); }
+
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+
+  @media (max-width: 700px) {
+    .main { padding: 1rem; }
+    .cal-grid, .mgmt-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+    .app-header { padding: 0 1rem; }
+    .cal-date { font-size: 13px; }
+    .slot { font-size: 9px; padding: 3px 2px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     CONFIGURATION — 在這裡修改你的設定
+     ================================================================ -->
+<script>
+const CONFIG = {
+  // ── 頁面標題 ──────────────────────────────────────────────
+  trainerName: '志杰基佬俱樂部',
+
+  // ── 教練管理頁密碼 ────────────────────────────────────────
+  trainerPassword: '1234',
+
+  // ── 教室選項 ──────────────────────────────────────────────
+  rooms: ['南昌教室', '民權教室'],
+
+  // ── 課程長度（分鐘）─────────────────────────────────────
+  lessonDuration: 60,
+};
+</script>
+<!-- ================================================================ -->
+
+
+<div id="root">
+  <!-- Header -->
+  <header class="app-header">
+    <div class="app-logo">
+      <span class="dot"></span>
+      <span id="trainer-name-display"></span>
+    </div>
+    <div class="header-tabs">
+      <button class="header-tab active" id="tab-student-btn" onclick="switchTab('student')">預約課程</button>
+      <button class="header-tab" id="tab-trainer-btn" onclick="switchTab('trainer')">教練管理</button>
+    </div>
+  </header>
+
+  <!-- Student view -->
+  <div class="main" id="view-student">
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#d1fae5;border:1px solid #a7f3d0"></div>可預約
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#fecaca;border:1px solid #fca5a5"></div>已預約
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#f3f4f6;border:1px solid #e5e7eb"></div>無課
+      </div>
+    </div>
+    <div class="week-nav">
+      <button class="week-btn" onclick="changeWeek(-1)">‹</button>
+      <button class="week-btn" onclick="changeWeek(1)">›</button>
+      <span class="week-label" id="week-label"></span>
+      <button class="today-btn" onclick="goToday()">本週</button>
+    </div>
+    <div class="cal-grid" id="student-grid"></div>
+  </div>
+
+  <!-- Trainer view (locked) -->
+  <div id="view-trainer" style="display:none">
+    <div id="trainer-lock">
+      <div class="lock-screen">
+        <div class="lock-card">
+          <div class="lock-icon">🔒</div>
+          <div class="lock-title">教練管理頁面</div>
+          <div class="lock-sub">請輸入密碼以繼續</div>
+          <input class="lock-input" type="password" id="lock-input" placeholder="••••"
+            onkeydown="if(event.key==='Enter')checkPassword()" autocomplete="current-password">
+          <button class="lock-btn" onclick="checkPassword()">進入管理</button>
+          <div class="lock-error" id="lock-error"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="trainer-content" style="display:none">
+      <div class="main">
+
+        <div class="section-label" style="margin-bottom:10px">設定可用時段 — 點擊開關</div>
+        <div class="mgmt-grid" id="trainer-grid"></div>
+
+        <div class="bookings-card">
+          <div class="bookings-header">
+            <span class="bookings-title">已預約課程</span>
+            <span class="booking-count" id="booking-count">0 堂</span>
+          </div>
+          <div id="bookings-list"></div>
+        </div>
+
+        <!-- Password change -->
+        <div style="margin-top:1.5rem">
+          <div class="section-label">安全性</div>
+          <div class="settings-row">
+            <span class="settings-label">修改管理密碼</span>
+            <input class="settings-input" type="password" id="new-password-input" placeholder="輸入新密碼">
+            <button class="save-btn" onclick="changePassword()">儲存</button>
+          </div>
+        </div>
+
+        <div style="text-align:right;margin-top:1rem">
+          <button class="btn" onclick="lockTrainer()">🔒 鎖定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Booking modal -->
+<div class="overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-title">預約課程</div>
+    <div class="modal-subtitle">
+      <span id="modal-slot-label"></span>
+    </div>
+    <div class="form-group">
+      <label class="form-label">選擇教室 *</label>
+      <select class="form-input" id="book-room"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">姓名 *</label>
+      <input class="form-input" type="text" id="book-name" placeholder="請輸入你的名字">
+    </div>
+    <div class="form-group">
+      <label class="form-label">聯絡電話</label>
+      <input class="form-input" type="tel" id="book-phone" placeholder="09xx-xxx-xxx">
+    </div>
+    <div class="form-group">
+      <label class="form-label">訓練目標（選填）</label>
+      <input class="form-input" type="text" id="book-note" placeholder="例：重訓、有氧、減脂...">
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn primary" id="confirm-btn" onclick="confirmBooking()">確認預約</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container">
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────
+const DAYS = ['日','一','二','三','四','五','六'];
+const TIMES = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'];
+
+let weekOffset = 0;
+let selectedSlot = null;
+let trainerUnlocked = false;
+let currentPassword = CONFIG.trainerPassword;
+
+// Default availability: Mon–Fri 10:00–22:00, Sat 10:00–16:00
+const defaultAvail = {
+  0: [],
+  1: [0,1,2,3,4,5,6,7,8,9,10,11,12],
+  2: [0,1,2,3,4,5,6,7,8,9,10,11,12],
+  3: [0,1,2,3,4,5,6,7,8,9,10,11,12],
+  4: [0,1,2,3,4,5,6,7,8,9,10,11,12],
+  5: [0,1,2,3,4,5,6,7,8,9,10,11,12],
+  6: [0,1,2,3,4,5,6],
+};
+
+// Load from localStorage or use defaults
+let avail = loadData('avail') || JSON.parse(JSON.stringify(defaultAvail));
+let bookings = loadData('bookings') || [
+  {id:'demo1', day:1, time:'10:00', name:'小明', phone:'0912-000-111', note:'重訓', gcalId:null},
+  {id:'demo2', day:3, time:'14:00', name:'Chloe', phone:'0922-333-444', note:'有氧', gcalId:null},
+];
+
+function loadData(key) {
+  try { return JSON.parse(localStorage.getItem('trainer_'+key)); } catch(e) { return null; }
+}
+
+function saveData(key, val) {
+  try { localStorage.setItem('trainer_'+key, JSON.stringify(val)); } catch(e) {}
+}
+
+// ── Init ──────────────────────────────────────────────────────────
+document.getElementById('trainer-name-display').textContent = CONFIG.trainerName;
+
+// Populate room options in modal
+const roomSelect = document.getElementById('book-room');
+CONFIG.rooms.forEach(r => {
+  const opt = document.createElement('option');
+  opt.value = r; opt.textContent = r;
+  roomSelect.appendChild(opt);
+});
+
+renderStudent();
+
+// ── Tab switching ─────────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('tab-student-btn').classList.toggle('active', tab==='student');
+  document.getElementById('tab-trainer-btn').classList.toggle('active', tab==='trainer');
+  document.getElementById('view-student').style.display = tab==='student' ? '' : 'none';
+  document.getElementById('view-trainer').style.display = tab==='trainer' ? '' : 'none';
+  if (tab==='trainer' && trainerUnlocked) renderTrainer();
+}
+
+// ── Password ──────────────────────────────────────────────────────
+function checkPassword() {
+  const val = document.getElementById('lock-input').value;
+  const input = document.getElementById('lock-input');
+  if (val === currentPassword) {
+    document.getElementById('trainer-lock').style.display = 'none';
+    document.getElementById('trainer-content').style.display = '';
+    trainerUnlocked = true;
+    renderTrainer();
+  } else {
+    input.classList.add('error');
+    document.getElementById('lock-error').textContent = '密碼錯誤，請重試';
+    setTimeout(() => { input.classList.remove('error'); input.value=''; }, 800);
+  }
+}
+
+function lockTrainer() {
+  trainerUnlocked = false;
+  document.getElementById('trainer-lock').style.display = '';
+  document.getElementById('trainer-content').style.display = 'none';
+  document.getElementById('lock-input').value = '';
+  document.getElementById('lock-error').textContent = '';
+  switchTab('student');
+}
+
+function changePassword() {
+  const val = document.getElementById('new-password-input').value.trim();
+  if (!val) { showToast('請輸入新密碼', 'error'); return; }
+  if (val.length < 4) { showToast('密碼至少 4 個字元', 'error'); return; }
+  currentPassword = val;
+  document.getElementById('new-password-input').value = '';
+  showToast('密碼已更新 ✓', 'success');
+}
+
+// ── Calendar rendering ────────────────────────────────────────────
+function getWeekDates(offset) {
+  const today = new Date();
+  const sun = new Date(today);
+  sun.setDate(today.getDate() - today.getDay() + offset * 7);
+  return Array.from({length:7}, (_,i) => {
+    const d = new Date(sun);
+    d.setDate(sun.getDate() + i);
+    return d;
+  });
+}
+
+function isToday(d) {
+  const t = new Date();
+  return d.getDate()===t.getDate() && d.getMonth()===t.getMonth() && d.getFullYear()===t.getFullYear();
+}
+
+function isPast(d, time) {
+  const now = new Date();
+  const [h,m] = time.split(':').map(Number);
+  const dt = new Date(d);
+  dt.setHours(h, m, 0, 0);
+  return dt < now;
+}
+
+function changeWeek(dir) { weekOffset += dir; renderStudent(); }
+function goToday() { weekOffset = 0; renderStudent(); }
+
+function renderStudent() {
+  const dates = getWeekDates(weekOffset);
+  const m1 = dates[0].getMonth()+1, d1 = dates[0].getDate();
+  const m2 = dates[6].getMonth()+1, d2 = dates[6].getDate();
+  document.getElementById('week-label').textContent =
+    `${dates[0].getFullYear()} · ${m1}/${d1} – ${m2}/${d2}`;
+
+  const grid = document.getElementById('student-grid');
+  grid.innerHTML = '';
+
+  dates.forEach((date, di) => {
+    const col = document.createElement('div');
+    col.className = 'cal-day' + (isToday(date) ? ' is-today-col' : '');
+
+    const dateNum = isToday(date)
+      ? `<div class="cal-date is-today">${date.getDate()}</div>`
+      : `<div class="cal-date">${date.getDate()}</div>`;
+
+    col.innerHTML = `
+      <div class="cal-day-head">
+        <div class="cal-weekday">${DAYS[di]}</div>
+        ${dateNum}
+      </div>
+      <div class="cal-slots" id="slots-${di}"></div>`;
+
+    const slotsEl = col.querySelector(`#slots-${di}`);
+    const dayAvail = avail[di] || [];
+
+    TIMES.forEach((time, ti) => {
+      const slot = document.createElement('button');
+      const booked = bookings.some(b => b.day===di && b.time===time);
+      const free = dayAvail.includes(ti);
+      const past = isPast(date, time) && weekOffset <= 0;
+
+      if (!free) {
+        slot.className = 'slot unavail';
+        slot.textContent = '·';
+        slot.disabled = true;
+      } else if (booked) {
+        slot.className = 'slot booked';
+        slot.textContent = time;
+        slot.disabled = true;
+      } else if (past) {
+        slot.className = 'slot unavail';
+        slot.textContent = time;
+        slot.style.textDecoration = 'line-through';
+        slot.disabled = true;
+      } else {
+        slot.className = 'slot free';
+        slot.textContent = time;
+        slot.onclick = () => openModal(di, date, time);
+      }
+      slotsEl.appendChild(slot);
+    });
+
+    grid.appendChild(col);
+  });
+}
+
+// ── Trainer panel ─────────────────────────────────────────────────
+function renderTrainer() {
+  renderMgmtGrid();
+  renderBookingsList();
+}
+
+function renderMgmtGrid() {
+  const grid = document.getElementById('trainer-grid');
+  grid.innerHTML = '';
+  for (let di = 0; di < 7; di++) {
+    const col = document.createElement('div');
+    col.className = 'mgmt-day';
+    col.innerHTML = `<div class="mgmt-day-head">${DAYS[di]}</div><div class="mgmt-slots" id="mgmt-${di}"></div>`;
+    const slotsEl = col.querySelector(`#mgmt-${di}`);
+    TIMES.forEach((time, ti) => {
+      const on = (avail[di]||[]).includes(ti);
+      const s = document.createElement('button');
+      s.className = 'toggle-slot' + (on ? ' on' : '');
+      s.textContent = time;
+      s.onclick = () => {
+        const arr = avail[di] || [];
+        const idx = arr.indexOf(ti);
+        if (idx > -1) { arr.splice(idx,1); s.classList.remove('on'); }
+        else { arr.push(ti); arr.sort((a,b)=>a-b); s.classList.add('on'); }
+        avail[di] = arr;
+        saveData('avail', avail);
+        renderStudent();
+      };
+      slotsEl.appendChild(s);
+    });
+    grid.appendChild(col);
+  }
+}
+
+function renderBookingsList() {
+  const list = document.getElementById('bookings-list');
+  const count = document.getElementById('booking-count');
+  count.textContent = bookings.length + ' 堂';
+
+  if (!bookings.length) {
+    list.innerHTML = '<div class="empty-state">目前沒有預約課程</div>';
+    return;
+  }
+
+  const sorted = [...bookings].sort((a,b) => a.day-b.day || TIMES.indexOf(a.time)-TIMES.indexOf(b.time));
+  list.innerHTML = '';
+
+  sorted.forEach(b => {
+    const initials = b.name.slice(0,1);
+    const row = document.createElement('div');
+    row.className = 'booking-row';
+    const roomBadge = b.room ? `<span class="room-badge">${b.room}</span>` : '';
+    row.innerHTML = `
+      <div class="booking-avatar">${initials}</div>
+      <div class="booking-info">
+        <div class="booking-name">${b.name}${roomBadge}</div>
+        <div class="booking-meta">${DAYS[b.day]} ${b.time}${b.room ? ' · ' + b.room : ''}${b.note ? ' · ' + b.note : ''}${b.phone ? ' · ' + b.phone : ''}</div>
+      </div>
+      <button class="cancel-btn" onclick="cancelBooking('${b.id}')">取消</button>`;
+    list.appendChild(row);
+  });
+}
+
+function cancelBooking(id) {
+  const b = bookings.find(x => x.id===id);
+  if (!b) return;
+  if (!confirm(`確定取消 ${b.name} 的預約？`)) return;
+
+  bookings = bookings.filter(x => x.id!==id);
+  saveData('bookings', bookings);
+  renderBookingsList();
+  renderStudent();
+  showToast('已取消預約');
+}
+
+// ── Modal ─────────────────────────────────────────────────────────
+function openModal(di, date, time) {
+  selectedSlot = {di, date, time};
+  const pill = `<span class="pill">${DAYS[di]} ${date.getMonth()+1}/${date.getDate()}  ${time}</span>`;
+  document.getElementById('modal-slot-label').innerHTML = pill;
+
+  document.getElementById('book-name').value = '';
+  document.getElementById('book-phone').value = '';
+  document.getElementById('book-note').value = '';
+  document.getElementById('book-room').value = CONFIG.rooms[0];
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('book-name').focus(), 200);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  selectedSlot = null;
+}
+
+async function confirmBooking() {
+  const name = document.getElementById('book-name').value.trim();
+  const phone = document.getElementById('book-phone').value.trim();
+  const note = document.getElementById('book-note').value.trim();
+  const room = document.getElementById('book-room').value;
+
+  if (!name) {
+    document.getElementById('book-name').focus();
+    document.getElementById('book-name').style.borderColor = 'var(--red)';
+    setTimeout(() => document.getElementById('book-name').style.borderColor = '', 1500);
+    return;
+  }
+
+  const btn = document.getElementById('confirm-btn');
+  btn.disabled = true;
+  btn.textContent = '處理中...';
+
+  const booking = {
+    id: Date.now().toString(),
+    day: selectedSlot.di,
+    time: selectedSlot.time,
+    name, phone, note, room,
+    date: selectedSlot.date.toISOString().split('T')[0],
+  };
+
+  bookings.push(booking);
+  saveData('bookings', bookings);
+  closeModal();
+  renderStudent();
+  if (trainerUnlocked) renderBookingsList();
+
+  btn.disabled = false;
+  btn.textContent = '確認預約';
+
+  showToast('✓ 預約成功！', 'success');
+}
+
+// ── Toast ─────────────────────────────────────────────────────────
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' '+type : '');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Keyboard ──────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') closeModal();
+});
+</script>
+</body>
+</html>
